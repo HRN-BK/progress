@@ -3090,19 +3090,45 @@ class TimerModule {
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
+        const milliseconds = now.getMilliseconds();
         
-        // Update digital display
-        document.getElementById('digital-time').textContent = 
-            `${this.formatTime(hours)}:${this.formatTime(minutes)}:${this.formatTime(seconds)}`;
+        // Calculate more precise angles including milliseconds for smoother movement
+        const hourDeg = (hours % 12) * 30 + minutes * 0.5 + seconds * 0.008; // Each hour is 30 degrees
+        const minuteDeg = minutes * 6 + seconds * 0.1; // Each minute is 6 degrees
+        const secondDeg = seconds * 6 + milliseconds * 0.006; // Each second is 6 degrees
         
-        // Update analog clock hands
-        const hourDeg = (hours % 12) * 30 + minutes * 0.5; // Each hour is 30 degrees
-        const minuteDeg = minutes * 6; // Each minute is 6 degrees
-        const secondDeg = seconds * 6; // Each second is 6 degrees
+        // Update analog clock hands with smooth animation
+        const hourHand = document.querySelector('.hour-hand');
+        const minuteHand = document.querySelector('.minute-hand');
+        const secondHand = document.querySelector('.second-hand');
         
-        document.querySelector('.hour-hand').style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
-        document.querySelector('.minute-hand').style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
-        document.querySelector('.second-hand').style.transform = `translateX(-50%) rotate(${secondDeg}deg)`;
+        if (hourHand && minuteHand && secondHand) {
+            // Apply transitions selectively for smoother animation
+            hourHand.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+            minuteHand.style.transform = `translateX(-50%) rotate(${minuteDeg}deg)`;
+            
+            // Special handling for second hand to create ticking effect
+            secondHand.style.transition = seconds === 0 ? 'none' : 'transform 0.2s cubic-bezier(0.4, 2.08, 0.55, 0.44)';
+            secondHand.style.transform = `translateX(-50%) rotate(${secondDeg}deg)`;
+        }
+        
+        // Update digital display with AM/PM
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const hours12 = hours % 12 || 12; // Convert to 12-hour format
+        
+        const digitalTimeElement = document.getElementById('digital-time');
+        if (digitalTimeElement) {
+            digitalTimeElement.textContent = 
+                `${hours12}:${this.formatTime(minutes)}:${this.formatTime(seconds)} ${ampm}`;
+            
+            // Add a pulse effect at the top of each minute
+            if (seconds === 0 && milliseconds < 500) {
+                digitalTimeElement.classList.add('pulse');
+                setTimeout(() => {
+                    digitalTimeElement.classList.remove('pulse');
+                }, 700);
+            }
+        }
     }
     
     // Countdown Timer methods
