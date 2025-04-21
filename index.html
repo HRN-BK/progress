@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Journal & Learning Companion</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-content">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <h3 id="user-greeting">Hello!</h3>
+                        <div class="user-streak">
+                            <i class="fas fa-fire"></i> <span id="streak-count">0</span> day streak
+                        </div>
+                    </div>
+                </div>
+                <div class="app-title">
+                    <h1>Daily Journal & Learning Companion</h1>
+                    <div class="date-display">
+                        <span id="current-date"></span>
+                    </div>
+                </div>
+                <div class="theme-toggle">
+                    <button id="theme-toggle-btn" class="btn icon-btn">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="app-layout">
+                <!-- Left Panel - Calendar -->
+                <div class="left-panel">
+                    <section class="calendar-section">
+                        <h2>Interactive Calendar</h2>
+                        <div class="calendar-controls">
+                            <button id="prev-month" class="btn icon-btn"><i class="fas fa-chevron-left"></i></button>
+                            <div id="calendar-header"></div>
+                            <button id="next-month" class="btn icon-btn"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="weekdays-header">
+                            <div>Sun</div>
+                            <div>Mon</div>
+                            <div>Tue</div>
+                            <div>Wed</div>
+                            <div>Thu</div>
+                            <div>Fri</div>
+                            <div>Sat</div>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid"></div>
+                    </section>
+                    
+                    <!-- Gamification Features -->
+                    <section class="gamification-section">
+                        <h2>Gamification</h2>
+                        <div class="gamification-icons">
+                            <button class="gamification-icon-btn" data-tooltip="Tasks">
+                                <i class="fas fa-tasks"></i>
+                            </button>
+                            <button class="gamification-icon-btn" data-tooltip="Shop">
+                                <i class="fas fa-store"></i>
+                            </button>
+                            <button class="gamification-icon-btn" data-tooltip="Milestones">
+                                <i class="fas fa-trophy"></i>
+                            </button>
+                        </div>
+                        <div class="gamification-coming-soon">
+                            Coming soon: Complete tasks, earn rewards, and track your progress!
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Timer Module -->
+                <div class="content-section right-panel">
+                    <!-- Timer Module -->
+                    <div class="collapsible-section" id="timer-section">
+                        <div class="section-header">
+                            <h2>Timer Module</h2>
+                            <button class="toggle-section"><i class="fa fa-chevron-up"></i></button>
+                        </div>
+                        <div class="section-content">
+                            <div class="timer-module">
+                                <div class="timer-container">
+                                    <!-- Real-Time Clock (Analog) -->
+                                    <div class="timer-box clock-box">
+                                        <h3>Real-Time Clock</h3>
+                                        <div class="analog-clock">
+                                            <div class="clock-face">
+                                                <div class="hour-hand"></div>
+                                                <div class="minute-hand"></div>
+                                                <div class="second-hand"></div>
+                                                <div class="clock-center"></div>
+                                            </div>
+                                        </div>
+                                        <div class="digital-time" id="digital-time">12:00:00 AM</div>
+                                    </div>
+                                    
+                                    <!-- Countdown Timer -->
+                                    <div class="timer-box countdown-box">
+                                        <h3>Countdown Timer</h3>
+                                        <div class="countdown-display" id="countdown-display">00:00:00</div>
+                                        <div class="timer-inputs">
+                                            <div class="time-input">
+                                                <label for="countdown-hours">H:</label>
+                                                <input type="number" id="countdown-hours" min="0" max="23" value="0">
+                                            </div>
+                                            <div class="time-input">
+                                                <label for="countdown-minutes">M:</label>
+                                                <input type="number" id="countdown-minutes" min="0" max="59" value="0">
+                                            </div>
+                                            <div class="time-input">
+                                                <label for="countdown-seconds">S:</label>
+                                                <input type="number" id="countdown-seconds" min="0" max="59" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="timer-controls">
+                                            <button id="start-countdown" class="timer-btn">Start</button>
+                                            <button id="pause-countdown" class="timer-btn">Pause</button>
+                                            <button id="reset-countdown" class="timer-btn">Reset</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Progress Bar Timer -->
+                                    <div class="timer-box progress-timer-box">
+                                        <h3>Progress Timer</h3>
+                                        <div class="progress-timer-display" id="progress-timer-display">00:00:00</div>
+                                        <div class="progress-bar-container">
+                                            <div class="progress-timer-bar"></div>
+                                        </div>
+                                        <div class="timer-inputs">
+                                            <div class="time-input">
+                                                <label for="progress-hours">H:</label>
+                                                <input type="number" id="progress-hours" min="0" max="23" value="0">
+                                            </div>
+                                            <div class="time-input">
+                                                <label for="progress-minutes">M:</label>
+                                                <input type="number" id="progress-minutes" min="0" max="59" value="25">
+                                            </div>
+                                            <div class="time-input">
+                                                <label for="progress-seconds">S:</label>
+                                                <input type="number" id="progress-seconds" min="0" max="59" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="timer-controls">
+                                            <button id="start-progress" class="timer-btn">Start</button>
+                                            <button id="pause-progress" class="timer-btn">Pause</button>
+                                            <button id="reset-progress" class="timer-btn">Reset</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Cycle Timer (Pomodoro) -->
+                                    <div class="timer-box cycle-timer-box">
+                                        <h3>Cycle Timer (Pomodoro)</h3>
+                                        <div class="cycle-timer-display" id="cycle-timer-display">25:00</div>
+                                        <div class="cycle-phase">Ready</div>
+                                        <div class="cycle-progress"></div>
+                                        <div class="timer-inputs">
+                                            <div class="time-input">
+                                                <label for="work-minutes">Work (min):</label>
+                                                <input type="number" id="work-minutes" min="1" max="60" value="25">
+                                            </div>
+                                            <div class="time-input">
+                                                <label for="break-minutes">Break (min):</label>
+                                                <input type="number" id="break-minutes" min="1" max="30" value="5">
+                                            </div>
+                                            <div class="time-input">
+                                                <label for="long-break-minutes">Long Break (min):</label>
+                                                <input type="number" id="long-break-minutes" min="1" max="45" value="15">
+                                            </div>
+                                            <div class="time-input">
+                                                <label for="cycle-count">Cycles:</label>
+                                                <input type="number" id="cycle-count" min="1" max="10" value="4">
+                                            </div>
+                                        </div>
+                                        <div class="timer-controls">
+                                            <button id="start-cycle" class="timer-btn">Start</button>
+                                            <button id="pause-cycle" class="timer-btn">Pause</button>
+                                            <button id="reset-cycle" class="timer-btn">Reset</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Icons Navigation Bar -->
+                    <div class="section-icons">
+                        <button class="section-icon-btn" data-section="day-details-section" data-tooltip="Day Details">
+                            <i class="fas fa-calendar-day"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="journal-section" data-tooltip="Daily Journal">
+                            <i class="fas fa-book"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="goals-section" data-tooltip="Daily Goals">
+                            <i class="fas fa-bullseye"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="lessons-section" data-tooltip="Lesson Content">
+                            <i class="fas fa-graduation-cap"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="spaced-repetition-section" data-tooltip="Spaced Repetition">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="scheduled-tasks-section" data-tooltip="Scheduled Tasks">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="summary-section" data-tooltip="Summaries">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                    </div>
+
+                    <!-- Collapsible Sections -->
+                    <section class="day-details-section collapsible-section">
+                        <div class="section-header">
+                            <h2 id="selected-day-header">Day Details</h2>
+                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                        </div>
+                        <div class="section-content">
+                            <div class="day-content" id="day-content">
+                                <!-- Day content will be dynamically populated -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="journal-section collapsible-section">
+                        <div class="section-header">
+                            <h2>Daily Journal</h2>
+                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                        </div>
+                        <div class="section-content">
+                            <div class="journal-container">
+                                <div class="journal-input">
+                                    <div class="journal-input-header">
+                                        <div class="time-picker-container">
+                                            <label>Time:</label>
+                                            <div class="time-picker">
+                                                <select id="journal-hour">
+                                                    <!-- Will be populated by JS -->
+                                                </select>
+                                                <span>:</span>
+                                                <select id="journal-minute">
+                                                    <!-- Will be populated by JS -->
+                                                </select>
+                                                <select id="journal-ampm">
+                                                    <option value="AM">AM</option>
+                                                    <option value="PM">PM</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="time-of-day-container">
+                                            <label>Time of Day:</label>
+                                            <select id="journal-time-of-day">
+                                                <option value="morning">Morning (Sáng sớm)</option>
+                                                <option value="noon">Noon (Buổi trưa)</option>
+                                                <option value="afternoon">Afternoon (Buổi chiều)</option>
+                                                <option value="evening">Evening (Buổi tối)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <textarea id="journal-content" placeholder="Write your thoughts for today..."></textarea>
+                                    <div class="journal-controls">
+                                        <button id="save-journal" class="btn primary-btn">Save Entry</button>
+                                    </div>
+                                </div>
+                                <div id="journal-history"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="goals-section collapsible-section">
+                        <div class="section-header">
+                            <h2>Daily Goals</h2>
+                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                        </div>
+                        <div class="section-content">
+                            <!-- Progress overview at the top -->
+                            <div class="progress-container">
+                                <div class="progress-label">Overall Progress:</div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" id="goal-progress-bar"></div>
+                                </div>
+                                <div class="progress-percentage" id="goal-progress-percentage">0%</div>
+                            </div>
+                            
+                            <div class="goal-input">
+                                <input type="text" id="new-goal" placeholder="Add a new goal...">
+                                <button id="add-goal" class="btn primary-btn">Add</button>
+                            </div>
+                            <div class="goals-list" id="goals-list"></div>
+                        </div>
+                    </section>
+
+                    <section class="lessons-section collapsible-section">
+                        <div class="section-header">
+                            <h2>Lesson Content</h2>
+                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                        </div>
+                        <div class="section-content">
+                            <div class="lesson-tabs">
+                                <button class="lesson-tab-btn active" data-tab="lesson-input">Create Lesson</button>
+                                <button class="lesson-tab-btn" data-tab="subject-management">Manage Subjects</button>
+                                <button class="lesson-tab-btn" data-tab="lessons-by-subject">Lessons by Subject</button>
+                            </div>
+                            
+                            <div class="lesson-tab-content active" id="lesson-input">
+                                <div class="lesson-input">
+                                    <div class="lesson-input-header">
+                                        <input type="text" id="lesson-title" placeholder="Lesson title...">
+                                        <select id="lesson-subject">
+                                            <option value="">Select Subject (Optional)</option>
+                                            <!-- Subject options will be populated by JavaScript -->
+                                        </select>
+                                    </div>
+                                    <textarea id="lesson-content" placeholder="Lesson content..."></textarea>
+                                    <div class="lesson-controls">
+                                        <button id="save-lesson" class="btn primary-btn">Save Lesson</button>
+                                    </div>
+                                </div>
+                                <div class="lessons-list-header">Recent Lessons</div>
+                                <div id="lessons-list" class="lessons-list"></div>
+                            </div>
+                            
+                            <div class="lesson-tab-content" id="subject-management">
+                                <div class="subject-form">
+                                    <input type="text" id="subject-name" placeholder="New subject name...">
+                                    <textarea id="subject-description" placeholder="Subject description (optional)..."></textarea>
+                                    <button id="save-subject" class="btn primary-btn">Add Subject</button>
+                                </div>
+                                <div class="subjects-list-header">Your Subjects</div>
+                                <div id="subjects-list" class="subjects-list"></div>
+                            </div>
+                            
+                            <div class="lesson-tab-content" id="lessons-by-subject">
+                                <div class="by-subject-header">
+                                    <h3>All Lessons by Subject</h3>
+                                    <p>Select a subject to view its lessons</p>
+                                </div>
+                                <div id="subject-selector" class="subject-selector">
+                                    <!-- Subject cards will be populated by JavaScript -->
+                                </div>
+                                <div id="subject-lessons" class="subject-lessons">
+                                    <!-- Lessons for the selected subject will be shown here -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="spaced-repetition-section collapsible-section">
+                        <div class="section-header">
+                            <h2>Spaced Repetition</h2>
+                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                        </div>
+                        <div class="section-content">
+                            <div class="sr-reminders" id="sr-reminders">
+                                <div class="sr-header">
+                                    <span>Today's Reviews</span>
+                                    <span class="sr-count" id="sr-today-count">0</span>
+                                </div>
+                                <div class="sr-list" id="sr-today-list"></div>
+                                
+                                <div class="sr-header">
+                                    <span>Upcoming Reviews</span>
+                                    <span class="sr-count" id="sr-upcoming-count">0</span>
+                                </div>
+                                <div class="sr-list" id="sr-upcoming-list"></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Scheduled Tasks Section -->
+                    <section class="scheduled-tasks-section collapsible-section">
+                        <div class="section-header">
+                            <h2>Scheduled Tasks</h2>
+                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                        </div>
+                        <div class="section-content">
+                            <div class="task-input-form">
+                                <input type="text" id="task-name" placeholder="Task name...">
+                                
+                                <div class="task-time-container">
+                                    <div>
+                                        <label>Start Time:</label>
+                                        <div class="time-picker">
+                                            <select id="task-start-hour">
+                                                <!-- Will be populated by JS -->
+                                            </select>
+                                            <span>:</span>
+                                            <select id="task-start-minute">
+                                                <!-- Will be populated by JS -->
+                                            </select>
+                                            <select id="task-start-ampm">
+                                                <option value="AM">AM</option>
+                                                <option value="PM">PM</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label>End Time:</label>
+                                        <div class="time-picker">
+                                            <select id="task-end-hour">
+                                                <!-- Will be populated by JS -->
+                                            </select>
+                                            <span>:</span>
+                                            <select id="task-end-minute">
+                                                <!-- Will be populated by JS -->
+                                            </select>
+                                            <select id="task-end-ampm">
+                                                <option value="AM">AM</option>
+                                                <option value="PM">PM</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <textarea id="task-description" placeholder="Task description..."></textarea>
+                                <input type="url" id="task-link" placeholder="Add a link (optional)">
+                                
+                                <button id="save-task-btn" class="btn primary-btn">Add Task</button>
+                            </div>
+                            
+                            <div class="schedule-view" id="schedule-view">
+                                <!-- Tasks will be displayed here in a timeline view -->
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="summary-section collapsible-section">
+                        <div class="section-header">
+                            <h2>Summaries</h2>
+                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                        </div>
+                        <div class="section-content">
+                            <div class="summary-tabs">
+                                <button class="tab-btn active" data-tab="weekly">Weekly</button>
+                                <button class="tab-btn" data-tab="monthly">Monthly</button>
+                            </div>
+                            <div class="summary-content">
+                                <div class="tab-content active" id="weekly-summary">
+                                    <!-- Weekly summary content -->
+                                </div>
+                                <div class="tab-content" id="monthly-summary">
+                                    <!-- Monthly summary content -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Daily Journal & Learning Companion © 2023</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

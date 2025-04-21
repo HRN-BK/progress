@@ -1,0 +1,831 @@
+// Helper function to detect mobile devices
+function isMobileDevice() {
+    return window.innerWidth < 768;
+}
+
+// Mobile feature helper class
+class MobileOptimizer {
+    constructor(app) {
+        this.app = app;
+        this.touchStartX = 0;
+        this.touchEndX = 0;
+        this.touchStartY = 0;
+        this.touchEndY = 0;
+        this.initialized = false;
+    }
+    
+    init() {
+        // Initialize mobile features only once
+        if (this.initialized) return;
+        
+        // Create overlay for sidebars
+        this.createOverlay();
+        
+        // Add back to top button
+        this.addBackToTopButton();
+        
+        // Setup swipe navigation
+        this.setupSwipeNavigation();
+        
+        // Add appropriate aria labels for better accessibility
+        this.enhanceAccessibility();
+        
+        // Handle orientation changes
+        this.handleOrientationChange();
+        
+        // Mark as initialized
+        this.initialized = true;
+    }
+    
+    createOverlay() {
+        if (!document.querySelector('.mobile-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'mobile-overlay';
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            overlay.style.bottom = '0';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            overlay.style.zIndex = '999';
+            overlay.style.display = 'none';
+            overlay.style.backdropFilter = 'blur(2px)';
+            
+            document.body.appendChild(overlay);
+            
+            // Close sidebar when overlay is clicked
+            overlay.addEventListener('click', () => {
+                overlay.style.display = 'none';
+                
+                // Find and close any active sidebars
+                const activeSidebars = document.querySelectorAll('.active[class*=sidebar]');
+                activeSidebars.forEach(sidebar => {
+                    sidebar.classList.remove('active');
+                });
+            });
+        }
+    }
+    
+    addBackToTopButton() {
+        // Create back to top button if not exists
+        if (!document.querySelector('.mobile-back-to-top')) {
+            const backToTopBtn = document.createElement('button');
+            backToTopBtn.className = 'mobile-back-to-top';
+            backToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            backToTopBtn.setAttribute('aria-label', 'Back to top');
+            backToTopBtn.style.display = 'none';
+            backToTopBtn.style.position = 'fixed';
+            backToTopBtn.style.right = '20px';
+            backToTopBtn.style.bottom = '80px';
+            backToTopBtn.style.zIndex = '99';
+            backToTopBtn.style.width = '44px';
+            backToTopBtn.style.height = '44px';
+            backToTopBtn.style.borderRadius = '50%';
+            backToTopBtn.style.backgroundColor = 'var(--primary-color)';
+            backToTopBtn.style.color = 'white';
+            backToTopBtn.style.border = 'none';
+            backToTopBtn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+            
+            document.body.appendChild(backToTopBtn);
+            
+            // Show/hide back to top button based on scroll position
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.style.display = 'block';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            });
+            
+            // Scroll to top when clicked
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    }
+    
+    setupSwipeNavigation() {
+        // Add swipe event listeners for date navigation
+        document.addEventListener('touchstart', (e) => {
+            this.touchStartX = e.changedTouches[0].screenX;
+            this.touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', (e) => {
+            this.touchEndX = e.changedTouches[0].screenX;
+            this.touchEndY = e.changedTouches[0].screenY;
+            this.handleSwipe();
+        }, { passive: true });
+    }
+    
+    handleSwipe() {
+        const swipeThreshold = 100; // Minimum pixels for a swipe
+        const swipeDistanceX = this.touchEndX - this.touchStartX;
+        const swipeDistanceY = this.touchEndY - this.touchStartY;
+        
+        // Check if it's a horizontal swipe (more horizontal than vertical)
+        if (Math.abs(swipeDistanceX) > Math.abs(swipeDistanceY) * 1.5) {
+            // Get the element that was swiped on
+            if (Math.abs(swipeDistanceX) < swipeThreshold) {
+                return; // Not a significant swipe
+            }
+            
+            const dayDetailsSection = document.querySelector('.day-details-section');
+            
+            // Only process horizontal swipes in the day details section
+            if (dayDetailsSection && !dayDetailsSection.classList.contains('collapsed')) {
+                if (swipeDistanceX > 0) {
+                    // Right swipe - previous day
+                    const prevDate = new Date(this.app.selectedDate);
+                    prevDate.setDate(prevDate.getDate() - 1);
+                    this.app.selectDate(prevDate);
+                } else {
+                    // Left swipe - next day
+                    const nextDate = new Date(this.app.selectedDate);
+                    nextDate.setDate(nextDate.getDate() + 1);
+                    this.app.selectDate(nextDate);
+                }
+            }
+        }
+    }
+    
+    enhanceAccessibility() {
+        // Add appropriate aria labels and roles for mobile navigation
+        const navButtons = document.querySelectorAll('.section-icon-btn');
+        navButtons.forEach(button => {
+            const tooltip = button.getAttribute('data-tooltip');
+            if (tooltip) {
+                button.setAttribute('aria-label', tooltip);
+            }
+        });
+    }
+    
+    handleOrientationChange() {
+        window.addEventListener('orientationchange', () => {
+            // Delay execution to ensure dimensions are updated
+            setTimeout(() => {
+                // Adjust heights and layout for new orientation
+                this.app.updateCalendarResponsiveness();
+                
+                // Close any open overlays on orientation change
+                const overlay = document.querySelector('.mobile-overlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+                
+                // Close any active sidebars
+                const activeSidebars = document.querySelectorAll('.active[class*=sidebar]');
+                activeSidebars.forEach(sidebar => {
+                    sidebar.classList.remove('active');
+                });
+            }, 300);
+        });
+    }
+    
+    adjustBottomNav() {
+        // Make bottom navigation sticky and visible
+        const sectionIcons = document.querySelector('.section-icons');
+        if (sectionIcons) {
+            sectionIcons.style.position = 'fixed';
+            sectionIcons.style.bottom = '0';
+            sectionIcons.style.left = '0';
+            sectionIcons.style.right = '0';
+            sectionIcons.style.zIndex = '100';
+            sectionIcons.style.backgroundColor = 'white';
+            sectionIcons.style.boxShadow = '0 -2px 10px rgba(0, 0, 0, 0.1)';
+            sectionIcons.style.margin = '0';
+            sectionIcons.style.padding = '10px 5px';
+            sectionIcons.style.display = 'flex';
+            sectionIcons.style.justifyContent = 'space-evenly';
+        }
+        
+        // Adjust footer padding to account for fixed nav
+        document.querySelector('footer').style.marginBottom = '70px';
+    }
+    
+    cleanup() {
+        // Remove mobile-specific elements
+        const backToTopBtn = document.querySelector('.mobile-back-to-top');
+        if (backToTopBtn) {
+            backToTopBtn.remove();
+        }
+        
+        const overlay = document.querySelector('.mobile-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+        
+        // Reset footer margin
+        document.querySelector('footer').style.marginBottom = '';
+        
+        // Reset section icons
+        const sectionIcons = document.querySelector('.section-icons');
+        if (sectionIcons) {
+            sectionIcons.style.position = '';
+            sectionIcons.style.bottom = '';
+            sectionIcons.style.left = '';
+            sectionIcons.style.right = '';
+            sectionIcons.style.zIndex = '';
+            sectionIcons.style.backgroundColor = '';
+            sectionIcons.style.boxShadow = '';
+            sectionIcons.style.margin = '';
+            sectionIcons.style.padding = '';
+        }
+        
+        // Mark as not initialized
+        this.initialized = false;
+    }
+}
+
+// Main Application Class
+class JournalApp {
+    constructor() {
+        this.selectedDate = new Date();
+        this.calendarDate = new Date();
+        this.journal = new Journal();
+        this.goals = new Goals();
+        this.lessons = new Lessons();
+        this.spacedRepetition = new SpacedRepetition();
+        this.mobileOptimizer = new MobileOptimizer(this);
+    }
+    
+    init() {
+        // Initialize components
+        this.journal.init();
+        this.goals.init();
+        this.lessons.init();
+        this.spacedRepetition.init();
+        this.calendar.init();
+        this.summary.init();
+        
+        if (this.scheduledTasks) {
+            this.scheduledTasks.init();
+        }
+        
+        // Initialize user profile
+        this.initUserProfile();
+        
+        // Initialize theme toggle
+        this.initThemeToggle();
+        
+        // Initialize collapsible sections
+        this.initCollapsibleSections();
+        
+        // Initialize icon navigation
+        this.initIconNavigation();
+        
+        // Update date display
+        this.updateDateDisplay();
+        
+        // Initial update of day content
+        this.updateDayContent(this.selectedDate);
+        
+        // Add resize event listener to handle mobile/desktop transitions
+        window.addEventListener('resize', this.handleResize.bind(this));
+        
+        // Initialize mobile features if on mobile device
+        if (isMobileDevice()) {
+            this.mobileOptimizer.init();
+            this.optimizeCollapsibleSections();
+        }
+        
+        // Initialize the calendar responsiveness
+        this.updateCalendarResponsiveness();
+    }
+    
+    // Handle responsive layout changes on resize
+    handleResize() {
+        const wasMobile = this.mobileOptimizer.initialized;
+        const isMobile = isMobileDevice();
+        
+        // Check if we're transitioning between mobile and desktop
+        if (isMobile && !wasMobile) {
+            // Switching to mobile
+            this.mobileOptimizer.init();
+            this.optimizeCollapsibleSections();
+        } else if (!isMobile && wasMobile) {
+            // Switching to desktop
+            this.mobileOptimizer.cleanup();
+        }
+        
+        // Always update the calendar
+        this.updateCalendarResponsiveness();
+    }
+    
+    updateCalendarResponsiveness() {
+        const calendar = document.querySelector('.calendar-grid');
+        if (calendar) {
+            // Adjust calendar based on available height
+            const viewportHeight = window.innerHeight;
+            const minCellSize = isMobileDevice() ? 35 : 50; // Minimum size for calendar cells
+            
+            // Set max cell size based on viewport height
+            const maxCellSize = Math.max(minCellSize, Math.floor(viewportHeight * 0.09));
+            
+            // Apply the size to calendar day cells
+            const calendarDays = document.querySelectorAll('.calendar-day');
+            calendarDays.forEach(day => {
+                day.style.height = `${maxCellSize}px`;
+            });
+        }
+    }
+    
+    optimizeCollapsibleSections() {
+        if (isMobileDevice()) {
+            // On mobile, collapse all sections except the first one
+            const sections = document.querySelectorAll('.collapsible-section');
+            sections.forEach((section, index) => {
+                if (index > 0) {
+                    section.classList.add('collapsed');
+                }
+            });
+        }
+    }
+    
+    // Update the calendar with the current month
+    updateCalendar(date) {
+        this.calendarDate = new Date(date);
+        const year = this.calendarDate.getFullYear();
+        const month = this.calendarDate.getMonth();
+        
+        // Update calendar header
+        const calendarHeader = document.getElementById('calendar-header');
+        calendarHeader.textContent = `${this.getMonthName(month)} ${year}`;
+        
+        // Clear existing calendar
+        const calendarGrid = document.getElementById('calendar-grid');
+        calendarGrid.innerHTML = '';
+        
+        // Get first day of month and last day
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        
+        // Fill in leading empty days
+        const firstDayOfWeek = firstDay.getDay();
+        for (let i = 0; i < firstDayOfWeek; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day empty';
+            calendarGrid.appendChild(emptyDay);
+        }
+        
+        // Fill in days of the month
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+            const dayElem = document.createElement('div');
+            dayElem.className = 'calendar-day';
+            dayElem.textContent = day;
+            
+            // Check if this is today
+            const currentDate = new Date();
+            if (currentDate.getFullYear() === year && 
+                currentDate.getMonth() === month && 
+                currentDate.getDate() === day) {
+                dayElem.classList.add('today');
+            }
+            
+            // Check if this is the selected date
+            if (this.selectedDate.getFullYear() === year && 
+                this.selectedDate.getMonth() === month && 
+                this.selectedDate.getDate() === day) {
+                dayElem.classList.add('selected');
+            }
+            
+            // Check if this day has journal entries or goals
+            const checkDate = new Date(year, month, day);
+            const hasJournalEntries = this.journal.getEntriesForDate(checkDate).length > 0;
+            const hasGoals = this.goals.getGoalsForDate(checkDate).length > 0;
+            
+            if (hasJournalEntries) {
+                dayElem.classList.add('has-journal');
+            }
+            
+            if (hasGoals) {
+                dayElem.classList.add('has-goals');
+            }
+            
+            // Add click event
+            dayElem.addEventListener('click', () => {
+                this.selectDate(new Date(year, month, day));
+            });
+            
+            calendarGrid.appendChild(dayElem);
+        }
+        
+        // Apply responsive sizing to the calendar days
+        this.updateCalendarResponsiveness();
+    }
+    
+    // Helper method to get month name
+    getMonthName(monthIndex) {
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        return months[monthIndex];
+    }
+    
+    // Initialize all event listeners
+    initEventListeners() {
+        // Add new goal when Enter key is pressed in the input field
+        document.getElementById('new-goal').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const goalText = e.target.value.trim();
+                if (goalText) {
+                    this.goals.addGoal(this.selectedDate, goalText);
+                    e.target.value = '';
+                    this.refreshGoals();
+                }
+            }
+        });
+    }
+    
+    // Select a date and update all relevant views
+    selectDate(date) {
+        // Convert to Date object if it's not already
+        const newDate = new Date(date);
+        
+        // Check if we need to change month view
+        if (newDate.getMonth() !== this.calendarDate.getMonth() || 
+            newDate.getFullYear() !== this.calendarDate.getFullYear()) {
+            this.updateCalendar(newDate);
+        } else {
+            // Just update the selected day
+            const prevSelected = document.querySelector('.calendar-day.selected');
+            if (prevSelected) {
+                prevSelected.classList.remove('selected');
+            }
+            
+            const dayToSelect = Array.from(document.querySelectorAll('.calendar-day:not(.empty)'))
+                .find(day => parseInt(day.textContent) === newDate.getDate());
+                
+            if (dayToSelect) {
+                dayToSelect.classList.add('selected');
+            }
+        }
+        
+        // Update the selected date
+        this.selectedDate = newDate;
+        
+        // Refresh all data for the selected date
+        this.refreshDayDetails();
+        this.refreshJournalEntries();
+        this.refreshGoals();
+    }
+    
+    // Update the current date display
+    updateCurrentDateDisplay() {
+        const currentDateElem = document.getElementById('current-date');
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        currentDateElem.textContent = new Date().toLocaleDateString(undefined, options);
+    }
+    
+    // Refresh journal entries for the selected date
+    refreshJournalEntries() {
+        const journalHistory = document.getElementById('journal-history');
+        journalHistory.innerHTML = '';
+        
+        const entries = this.journal.getEntriesForDate(this.selectedDate);
+        
+        if (entries.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-state';
+            emptyMessage.innerHTML = '<i class="fas fa-book"></i><p>No journal entries for this day. Start writing!</p>';
+            journalHistory.appendChild(emptyMessage);
+            return;
+        }
+        
+        // Sort entries by time
+        entries.sort((a, b) => a.timestamp - b.timestamp);
+        
+        // Create elements for each entry
+        entries.forEach(entry => {
+            const entryElem = document.createElement('div');
+            entryElem.className = 'journal-entry';
+            
+            const header = document.createElement('div');
+            header.className = 'journal-entry-header';
+            
+            const time = document.createElement('span');
+            time.className = 'entry-time';
+            time.textContent = `${entry.time} (${entry.timeOfDay})`;
+            
+            header.appendChild(time);
+            entryElem.appendChild(header);
+            
+            const content = document.createElement('div');
+            content.className = 'entry-content';
+            content.textContent = entry.content;
+            entryElem.appendChild(content);
+            
+            journalHistory.appendChild(entryElem);
+        });
+    }
+    
+    // Refresh goals for the selected date
+    refreshGoals() {
+        const goalsList = document.getElementById('goals-list');
+        goalsList.innerHTML = '';
+        
+        const goals = this.goals.getGoalsForDate(this.selectedDate);
+        
+        if (goals.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-state';
+            emptyMessage.innerHTML = '<i class="fas fa-bullseye"></i><p>No goals for this day. Add some goals!</p>';
+            goalsList.appendChild(emptyMessage);
+            
+            // Update progress indicators
+            this.updateGoalProgress(0);
+            return;
+        }
+        
+        // Create elements for each goal
+        goals.forEach((goal, index) => {
+            const goalElem = document.createElement('div');
+            goalElem.className = 'goal-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = goal.completed;
+            checkbox.addEventListener('change', () => {
+                this.goals.toggleGoal(this.selectedDate, index);
+                this.refreshGoals();
+            });
+            
+            const text = document.createElement('span');
+            text.className = 'goal-text';
+            text.textContent = goal.text;
+            if (goal.completed) {
+                text.classList.add('completed');
+            }
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-goal';
+            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.addEventListener('click', () => {
+                this.goals.removeGoal(this.selectedDate, index);
+                this.refreshGoals();
+            });
+            
+            goalElem.appendChild(checkbox);
+            goalElem.appendChild(text);
+            goalElem.appendChild(deleteBtn);
+            
+            goalsList.appendChild(goalElem);
+        });
+        
+        // Update progress
+        const completed = goals.filter(goal => goal.completed).length;
+        this.updateGoalProgress(completed / goals.length * 100);
+    }
+    
+    // Update the goal progress indicators
+    updateGoalProgress(percentage) {
+        const progressBar = document.getElementById('goal-progress-bar');
+        const progressPercentage = document.getElementById('goal-progress-percentage');
+        
+        progressBar.style.width = `${percentage}%`;
+        progressPercentage.textContent = `${Math.round(percentage)}%`;
+    }
+    
+    // Refresh day details for the selected date
+    refreshDayDetails() {
+        const dayContentElem = document.getElementById('day-content');
+        const selectedDayHeader = document.getElementById('selected-day-header');
+        
+        // Format the date for display
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = this.selectedDate.toLocaleDateString(undefined, options);
+        selectedDayHeader.textContent = formattedDate;
+        
+        // Display day content
+        const journalCount = this.journal.getEntriesForDate(this.selectedDate).length;
+        const goalsCount = this.goals.getGoalsForDate(this.selectedDate).length;
+        const completedGoals = this.goals.getGoalsForDate(this.selectedDate)
+            .filter(goal => goal.completed).length;
+        
+        dayContentElem.innerHTML = `
+            <div class="day-stats">
+                <div class="day-stat-item">
+                    <i class="fas fa-book"></i>
+                    <span>${journalCount} journal entries</span>
+                </div>
+                <div class="day-stat-item">
+                    <i class="fas fa-bullseye"></i>
+                    <span>${completedGoals}/${goalsCount} goals completed</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Rest of the existing methods...
+}
+
+// Define missing classes
+class Journal {
+    constructor() {
+        this.entries = JSON.parse(localStorage.getItem('journal_entries')) || {};
+    }
+    
+    addEntry(date, time, timeOfDay, content) {
+        const dateKey = this.formatDateKey(date);
+        
+        if (!this.entries[dateKey]) {
+            this.entries[dateKey] = [];
+        }
+        
+        this.entries[dateKey].push({
+            time: time,
+            timeOfDay: timeOfDay,
+            content: content,
+            timestamp: new Date().getTime()
+        });
+        
+        this.saveEntries();
+        return true;
+    }
+    
+    getEntriesForDate(date) {
+        const dateKey = this.formatDateKey(date);
+        return this.entries[dateKey] || [];
+    }
+    
+    formatDateKey(date) {
+        const d = new Date(date);
+        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+    
+    saveEntries() {
+        localStorage.setItem('journal_entries', JSON.stringify(this.entries));
+    }
+}
+
+class Goals {
+    constructor() {
+        this.goals = JSON.parse(localStorage.getItem('goals')) || {};
+    }
+    
+    addGoal(date, goal) {
+        const dateKey = this.formatDateKey(date);
+        
+        if (!this.goals[dateKey]) {
+            this.goals[dateKey] = [];
+        }
+        
+        this.goals[dateKey].push({
+            text: goal,
+            completed: false,
+            timestamp: new Date().getTime()
+        });
+        
+        this.saveGoals();
+        return this.goals[dateKey].length - 1;
+    }
+    
+    toggleGoal(date, index) {
+        const dateKey = this.formatDateKey(date);
+        
+        if (this.goals[dateKey] && this.goals[dateKey][index]) {
+            this.goals[dateKey][index].completed = !this.goals[dateKey][index].completed;
+            this.saveGoals();
+            return true;
+        }
+        
+        return false;
+    }
+    
+    removeGoal(date, index) {
+        const dateKey = this.formatDateKey(date);
+        
+        if (this.goals[dateKey] && this.goals[dateKey][index]) {
+            this.goals[dateKey].splice(index, 1);
+            this.saveGoals();
+            return true;
+        }
+        
+        return false;
+    }
+    
+    getGoalsForDate(date) {
+        const dateKey = this.formatDateKey(date);
+        return this.goals[dateKey] || [];
+    }
+    
+    formatDateKey(date) {
+        const d = new Date(date);
+        return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    }
+    
+    saveGoals() {
+        localStorage.setItem('goals', JSON.stringify(this.goals));
+    }
+}
+
+class Lessons {
+    constructor() {
+        // Initialization for lessons can be minimal for now
+        this.lessons = JSON.parse(localStorage.getItem('lessons')) || [];
+    }
+}
+
+class SpacedRepetition {
+    constructor() {
+        // Initialization for spaced repetition can be minimal for now
+        this.items = JSON.parse(localStorage.getItem('spaced_repetition_items')) || [];
+    }
+}
+
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    // Create and initialize the app
+    const app = new JournalApp();
+    app.init();
+    
+    // Store app in window for debugging
+    window.journalApp = app;
+    
+    // Add event listeners for calendar navigation
+    document.getElementById('prev-month').addEventListener('click', () => {
+        const currentDate = new Date(app.selectedDate);
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        app.updateCalendar(currentDate);
+    });
+    
+    document.getElementById('next-month').addEventListener('click', () => {
+        const currentDate = new Date(app.selectedDate);
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        app.updateCalendar(currentDate);
+    });
+    
+    // Event listeners for journal functionality
+    document.getElementById('save-journal').addEventListener('click', () => {
+        const content = document.getElementById('journal-content').value.trim();
+        if (content) {
+            const hour = document.getElementById('journal-hour').value;
+            const minute = document.getElementById('journal-minute').value;
+            const timeOfDay = document.getElementById('journal-time-of-day').value;
+            const time = `${hour}:${minute}`;
+            
+            app.journal.addEntry(app.selectedDate, time, timeOfDay, content);
+            document.getElementById('journal-content').value = '';
+            app.refreshJournalEntries();
+        }
+    });
+    
+    // Event listeners for goals functionality
+    document.getElementById('add-goal').addEventListener('click', () => {
+        const goalText = document.getElementById('new-goal').value.trim();
+        if (goalText) {
+            app.goals.addGoal(app.selectedDate, goalText);
+            document.getElementById('new-goal').value = '';
+            app.refreshGoals();
+        }
+    });
+    
+    // Set up collapsible sections
+    document.querySelectorAll('.toggle-section').forEach(button => {
+        button.addEventListener('click', () => {
+            const section = button.closest('.collapsible-section');
+            section.classList.toggle('collapsed');
+            
+            // Update icon
+            const icon = button.querySelector('i');
+            if (section.classList.contains('collapsed')) {
+                icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            } else {
+                icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            }
+        });
+    });
+    
+    // Set up section icon navigation
+    document.querySelectorAll('.section-icon-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const sectionId = button.getAttribute('data-section');
+            const section = document.querySelector(`.${sectionId}`);
+            
+            if (section) {
+                // Uncollapse the section if it's collapsed
+                if (section.classList.contains('collapsed')) {
+                    section.classList.remove('collapsed');
+                    const icon = section.querySelector('.toggle-section i');
+                    if (icon) {
+                        icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+                    }
+                }
+                
+                // Scroll to the section
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+    
+    // Handle window resize for responsive design
+    window.addEventListener('resize', () => {
+        app.handleResize();
+    });
+});
+
+// ... rest of the existing code ... 
