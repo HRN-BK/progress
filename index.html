@@ -58,34 +58,61 @@
                         </div>
                         <div class="calendar-grid" id="calendar-grid"></div>
                     </section>
-                    
-                    <!-- Gamification Features -->
-                    <section class="gamification-section">
-                        <h2>Gamification</h2>
-                        <div class="gamification-icons">
-                            <button class="gamification-icon-btn" data-tooltip="Tasks">
-                                <i class="fas fa-tasks"></i>
-                            </button>
-                            <button class="gamification-icon-btn" data-tooltip="Shop">
-                                <i class="fas fa-store"></i>
-                            </button>
-                            <button class="gamification-icon-btn" data-tooltip="Milestones">
-                                <i class="fas fa-trophy"></i>
-                            </button>
-                        </div>
-                        <div class="gamification-coming-soon">
-                            Coming soon: Complete tasks, earn rewards, and track your progress!
-                        </div>
-                    </section>
                 </div>
 
-                <!-- Timer Module -->
+                <!-- Content Section -->
                 <div class="content-section right-panel">
-                    <!-- Timer Module -->
-                    <div class="collapsible-section" id="timer-section">
+                    
+                    <!-- Icons Navigation Bar - LEVEL 2 (Gamification & Timer) -->
+                    <div class="section-icons-2">
+                        <button class="section-icon-btn" data-section="timer-section" data-tooltip="Timer Module">
+                            <i class="fas fa-stopwatch"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="pomodoro-section" data-tooltip="Pomodoro Timer">
+                            <i class="fas fa-hourglass-half"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="tasks-section" data-tooltip="Tasks">
+                            <i class="fas fa-tasks"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="achievements-section" data-tooltip="Achievements">
+                            <i class="fas fa-trophy"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="shop-section" data-tooltip="Shop">
+                            <i class="fas fa-store"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Icons Navigation Bar -->
+                    <div class="section-icons">
+                        <button class="section-icon-btn" data-section="day-details-section" data-tooltip="Day Details">
+                            <i class="fas fa-calendar-day"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="journal-section" data-tooltip="Daily Journal">
+                            <i class="fas fa-book"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="goals-section" data-tooltip="Daily Goals">
+                            <i class="fas fa-bullseye"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="lessons-section" data-tooltip="Lesson Content">
+                            <i class="fas fa-graduation-cap"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="spaced-repetition-section" data-tooltip="Spaced Repetition">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="scheduled-tasks-section" data-tooltip="Scheduled Tasks">
+                            <i class="fas fa-clock"></i>
+                        </button>
+                        <button class="section-icon-btn" data-section="summary-section" data-tooltip="Summaries">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                    </div>
+
+                    <!-- Collapsible Sections -->
+                    <!-- Timer Module Section -->
+                    <section class="timer-section collapsible-section collapsed">
                         <div class="section-header">
                             <h2>Timer Module</h2>
-                            <button class="toggle-section"><i class="fa fa-chevron-up"></i></button>
+                            <button class="toggle-section"><i class="fas fa-chevron-down"></i></button>
                         </div>
                         <div class="section-content">
                             <div class="timer-module">
@@ -203,38 +230,12 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Icons Navigation Bar -->
-                    <div class="section-icons">
-                        <button class="section-icon-btn" data-section="day-details-section" data-tooltip="Day Details">
-                            <i class="fas fa-calendar-day"></i>
-                        </button>
-                        <button class="section-icon-btn" data-section="journal-section" data-tooltip="Daily Journal">
-                            <i class="fas fa-book"></i>
-                        </button>
-                        <button class="section-icon-btn" data-section="goals-section" data-tooltip="Daily Goals">
-                            <i class="fas fa-bullseye"></i>
-                        </button>
-                        <button class="section-icon-btn" data-section="lessons-section" data-tooltip="Lesson Content">
-                            <i class="fas fa-graduation-cap"></i>
-                        </button>
-                        <button class="section-icon-btn" data-section="spaced-repetition-section" data-tooltip="Spaced Repetition">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                        <button class="section-icon-btn" data-section="scheduled-tasks-section" data-tooltip="Scheduled Tasks">
-                            <i class="fas fa-clock"></i>
-                        </button>
-                        <button class="section-icon-btn" data-section="summary-section" data-tooltip="Summaries">
-                            <i class="fas fa-chart-bar"></i>
-                        </button>
-                    </div>
+                    </section>
 
-                    <!-- Collapsible Sections -->
-                    <section class="day-details-section collapsible-section">
+                    <section class="day-details-section collapsible-section collapsed">
                         <div class="section-header">
                             <h2 id="selected-day-header">Day Details</h2>
-                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                            <button class="toggle-section"><i class="fas fa-chevron-down"></i></button>
                         </div>
                         <div class="section-content">
                             <div class="day-content" id="day-content">
@@ -243,10 +244,10 @@
                         </div>
                     </section>
 
-                    <section class="journal-section collapsible-section">
+                    <section class="journal-section collapsible-section collapsed">
                         <div class="section-header">
                             <h2>Daily Journal</h2>
-                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                            <button class="toggle-section"><i class="fas fa-chevron-down"></i></button>
                         </div>
                         <div class="section-content">
                             <div class="journal-container">
@@ -288,10 +289,10 @@
                         </div>
                     </section>
 
-                    <section class="goals-section collapsible-section">
+                    <section class="goals-section collapsible-section collapsed">
                         <div class="section-header">
                             <h2>Daily Goals</h2>
-                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                            <button class="toggle-section"><i class="fas fa-chevron-down"></i></button>
                         </div>
                         <div class="section-content">
                             <!-- Progress overview at the top -->
@@ -311,10 +312,10 @@
                         </div>
                     </section>
 
-                    <section class="lessons-section collapsible-section">
+                    <section class="lessons-section collapsible-section collapsed">
                         <div class="section-header">
                             <h2>Lesson Content</h2>
-                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                            <button class="toggle-section"><i class="fas fa-chevron-down"></i></button>
                         </div>
                         <div class="section-content">
                             <div class="lesson-tabs">
@@ -366,10 +367,10 @@
                         </div>
                     </section>
 
-                    <section class="spaced-repetition-section collapsible-section">
+                    <section class="spaced-repetition-section collapsible-section collapsed">
                         <div class="section-header">
                             <h2>Spaced Repetition</h2>
-                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                            <button class="toggle-section"><i class="fas fa-chevron-down"></i></button>
                         </div>
                         <div class="section-content">
                             <div class="sr-reminders" id="sr-reminders">
@@ -389,10 +390,10 @@
                     </section>
 
                     <!-- Scheduled Tasks Section -->
-                    <section class="scheduled-tasks-section collapsible-section">
+                    <section class="scheduled-tasks-section collapsible-section collapsed">
                         <div class="section-header">
                             <h2>Scheduled Tasks</h2>
-                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                            <button class="toggle-section"><i class="fas fa-chevron-down"></i></button>
                         </div>
                         <div class="section-content">
                             <div class="task-input-form">
@@ -446,10 +447,10 @@
                         </div>
                     </section>
 
-                    <section class="summary-section collapsible-section">
+                    <section class="summary-section collapsible-section collapsed">
                         <div class="section-header">
                             <h2>Summaries</h2>
-                            <button class="toggle-section"><i class="fas fa-chevron-up"></i></button>
+                            <button class="toggle-section"><i class="fas fa-chevron-down"></i></button>
                         </div>
                         <div class="section-content">
                             <div class="summary-tabs">
@@ -471,7 +472,7 @@
         </main>
 
         <footer>
-            <p>Daily Journal & Learning Companion © 2023</p>
+            <p>Anonymous © 2025</p>
         </footer>
     </div>
 

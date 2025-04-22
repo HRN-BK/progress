@@ -22,50 +22,46 @@ class JournalApp {
     }
 
     init() {
-        // Initialize date display
-        this.updateDateDisplay();
-        
-        // Initialize user profile
-        this.initUserProfile();
-        
-        // Apply theme
-        this.applyTheme();
-        
-        // Update streak
-        this.updateStreak();
-        
-        // Initialize all modules
+        // Set default date to today
+        this.selectedDate = new Date();
+        // Create calendar
+        this.calendar = new Calendar(this);
         this.calendar.init();
+        
+        // Create journal
+        this.journal = new Journal(this);
         this.journal.init();
-        this.goals.init();
+        
+        // Create lessons
+        this.lessons = new Lessons(this);
         this.lessons.init();
-        this.spacedRepetition.init();
-        this.summary.init();
+        
+        // Create goals
+        this.goals = new Goals(this);
+        this.goals.init();
+        
+        // Create scheduled tasks
+        this.scheduledTasks = new ScheduledTasks(this);
         this.scheduledTasks.init();
-
-        // Set up event listeners for tabs
-        document.querySelectorAll('.tab-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                const tab = button.dataset.tab;
-                this.switchTab(tab);
-            });
-        });
-
-        // Set up collapsible sections
-        this.initCollapsibleSections();
-        
-        // Set up icon navigation
-        this.initIconNavigation();
-        
-        // Set up theme toggle
-        this.initThemeToggle();
-
-        // Initial update of day content
-        this.updateDayContent(this.selectedDate);
         
         // Initialize timer module
         this.timerModule = new TimerModule(this);
         this.timerModule.init();
+
+        // Initialize UI components
+        this.initUserProfile();
+        this.initThemeToggle();
+        this.initCollapsibleSections();
+        this.initIconNavigation();
+        
+        // Initialize day content
+        this.updateDayContent(this.selectedDate);
+        
+        // Apply iOS specific fixes if needed
+        this.applyMobileSpecificFixes();
+        
+        // Setup dark mode
+        this.setupDarkMode();
     }
     
     initUserProfile() {
@@ -156,39 +152,84 @@ class JournalApp {
     }
     
     initIconNavigation() {
+        // Select all section-icon-btn elements, including those in section-icons and section-icons-2
         const iconButtons = document.querySelectorAll('.section-icon-btn');
         
-        // Set Day Details icon (first button) as active initially
-        if (iconButtons.length > 0) {
-            iconButtons[0].classList.add('active');
-            this.showSection(iconButtons[0].dataset.section);
-        }
+        // Don't set any section as active initially - hide all sections
+        document.querySelectorAll('.right-panel > section.collapsible-section').forEach(section => {
+            section.style.display = 'none';
+        });
         
         // Add click event listeners to icon buttons
         iconButtons.forEach(button => {
             button.addEventListener('click', () => {
-                // Remove active class from all buttons
-                iconButtons.forEach(btn => btn.classList.remove('active'));
+                const sectionClass = button.dataset.section;
+                if (!sectionClass) return; // Skip buttons without a section
                 
-                // Add active class to clicked button
-                button.classList.add('active');
+                const selectedSection = document.querySelector(`.${sectionClass}`);
                 
-                // Show corresponding section
-                this.showSection(button.dataset.section);
+                // If the section is already visible, hide it and remove active class
+                if (selectedSection && selectedSection.style.display === 'block') {
+                    selectedSection.style.display = 'none';
+                    button.classList.remove('active');
+                } else {
+                    // Hide all sections first
+                    document.querySelectorAll('.right-panel > section.collapsible-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Remove active class from all buttons
+                    iconButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Show the selected section and add active class to the button
+                    if (selectedSection) {
+                        selectedSection.style.display = 'block';
+                        button.classList.add('active');
+                        
+                        // Make sure it's expanded
+                        if (selectedSection.classList.contains('collapsed')) {
+                            selectedSection.classList.remove('collapsed');
+                            
+                            // Update toggle button icon
+                            const toggleButton = selectedSection.querySelector('.toggle-section i');
+                            if (toggleButton) {
+                                toggleButton.className = 'fas fa-chevron-up';
+                            }
+                        }
+                    } else {
+                        // Handle cases where the section doesn't exist yet
+                        this.showToast(`Feature coming soon: ${button.dataset.tooltip || sectionClass}`, 'info');
+                    }
+                }
             });
         });
     }
     
     showSection(sectionClass) {
-        // Hide all sections
+        const selectedSection = document.querySelector(`.${sectionClass}`);
+        const button = document.querySelector(`.section-icon-btn[data-section="${sectionClass}"]`);
+        
+        // If section is already visible, toggle it off
+        if (selectedSection && selectedSection.style.display === 'block') {
+            selectedSection.style.display = 'none';
+            if (button) button.classList.remove('active');
+            return;
+        }
+        
+        // Otherwise, hide all sections and show selected one
         document.querySelectorAll('.right-panel > section.collapsible-section').forEach(section => {
             section.style.display = 'none';
         });
         
-        // Show selected section
-        const selectedSection = document.querySelector(`.${sectionClass}`);
+        // Remove active class from all buttons
+        document.querySelectorAll('.section-icon-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected section and make button active
         if (selectedSection) {
             selectedSection.style.display = 'block';
+            if (button) button.classList.add('active');
             
             // Make sure it's expanded
             if (selectedSection.classList.contains('collapsed')) {
@@ -212,16 +253,35 @@ class JournalApp {
         // Update day content
         this.updateDayContent(date);
         
-        // Show day details section
-        this.showSection('day-details-section');
+        // Show day details section - but only toggle if not already visible
+        const dayDetailsSection = document.querySelector('.day-details-section');
+        const dayDetailsButton = document.querySelector('.section-icon-btn[data-section="day-details-section"]');
         
-        // Set active icon button
+        // Hide all sections first
+        document.querySelectorAll('.right-panel > section.collapsible-section').forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Remove active class from all buttons
         document.querySelectorAll('.section-icon-btn').forEach(btn => {
             btn.classList.remove('active');
-            if (btn.dataset.section === 'day-details-section') {
-                btn.classList.add('active');
-            }
         });
+        
+        // Show day details section and activate button
+        if (dayDetailsSection) {
+            dayDetailsSection.style.display = 'block';
+            
+            // Ensure it's expanded
+            if (dayDetailsSection.classList.contains('collapsed')) {
+                dayDetailsSection.classList.remove('collapsed');
+                const toggleButton = dayDetailsSection.querySelector('.toggle-section i');
+                if (toggleButton) toggleButton.className = 'fas fa-chevron-up';
+            }
+        }
+        
+        if (dayDetailsButton) {
+            dayDetailsButton.classList.add('active');
+        }
     }
 
     updateDateDisplay() {
@@ -629,6 +689,165 @@ class JournalApp {
                 document.body.removeChild(toast);
             }, 300);
         }, 3000);
+    }
+
+    applyMobileSpecificFixes() {
+        // Detect iOS device
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        if (isIOS) {
+            // Add iOS specific class to body
+            document.body.classList.add('ios-device');
+            
+            // Force redraw to fix potential layout issues
+            document.body.style.webkitTransform = 'scale(1)';
+            
+            // Add event listeners for better handling of fixed elements
+            document.addEventListener('touchmove', function(e) {
+                // Allow scrolling even when touching "fixed" elements
+                if (e.target.closest('.section') || 
+                    e.target.closest('.calendar-section') || 
+                    e.target.closest('.gamification-section')) {
+                    e.stopPropagation();
+                }
+            }, { passive: true });
+            
+            // Fix for 100vh issue on iOS (viewport height calculation)
+            const appContainer = document.querySelector('.app-container');
+            if (appContainer) {
+                const setAppHeight = () => {
+                    const vh = window.innerHeight * 0.01;
+                    document.documentElement.style.setProperty('--vh', `${vh}px`);
+                    appContainer.style.height = `calc(var(--vh, 1vh) * 100)`;
+                    
+                    // Check if in portrait or landscape mode
+                    const isPortrait = window.innerHeight > window.innerWidth;
+                    
+                    // Add orientation class to body
+                    if (isPortrait) {
+                        document.body.classList.add('ios-portrait');
+                        document.body.classList.remove('ios-landscape');
+                    } else {
+                        document.body.classList.add('ios-landscape');
+                        document.body.classList.remove('ios-portrait');
+                    }
+                    
+                    // Adjust panels based on orientation
+                    this.adjustLayoutForOrientation(isPortrait);
+                };
+                
+                // Set the height initially
+                setAppHeight();
+                
+                // Handle resize and orientation change events
+                window.addEventListener('resize', setAppHeight);
+                window.addEventListener('orientationchange', () => {
+                    // Small delay to ensure orientation has fully changed
+                    setTimeout(setAppHeight, 100);
+                });
+            }
+        }
+        
+        // Add general mobile detection
+        if (window.innerWidth <= 768) {
+            document.body.classList.add('mobile-device');
+            this.setupMobileNavigation();
+        }
+    }
+    
+    adjustLayoutForOrientation(isPortrait) {
+        const leftPanel = document.querySelector('.left-panel');
+        const rightPanel = document.querySelector('.right-panel');
+        const calendarSection = document.querySelector('.calendar-section');
+        
+        if (!leftPanel || !rightPanel || !calendarSection) return;
+        
+        if (isPortrait) {
+            // Portrait mode: stack panels vertically
+            leftPanel.style.position = 'relative';
+            leftPanel.style.height = 'auto';
+            leftPanel.style.maxHeight = '40vh';
+            leftPanel.style.overflowY = 'auto';
+            
+            // Make calendar section collapse/expand on tap in portrait mode
+            if (!calendarSection.hasAttribute('data-has-toggle')) {
+                const calendarHeader = calendarSection.querySelector('h2') || calendarSection.querySelector('.section-header');
+                if (calendarHeader) {
+                    calendarHeader.style.cursor = 'pointer';
+                    calendarHeader.addEventListener('click', () => {
+                        calendarSection.classList.toggle('collapsed-mobile');
+                        if (calendarSection.classList.contains('collapsed-mobile')) {
+                            leftPanel.style.maxHeight = '70px';
+                        } else {
+                            leftPanel.style.maxHeight = '40vh';
+                        }
+                    });
+                    calendarSection.setAttribute('data-has-toggle', 'true');
+                }
+            }
+        } else {
+            // Landscape mode: side-by-side panels with scrollable content
+            leftPanel.style.position = 'sticky';
+            leftPanel.style.top = '0';
+            leftPanel.style.height = '100vh';
+            leftPanel.style.maxHeight = 'none';
+            
+            // Remove collapsed state in landscape
+            calendarSection.classList.remove('collapsed-mobile');
+        }
+    }
+    
+    setupMobileNavigation() {
+        // Setup mobile navigation if not already done
+        if (document.querySelector('.mobile-nav-bar')) return;
+        
+        const appContainer = document.querySelector('.app-container');
+        if (!appContainer) return;
+        
+        // Create mobile navigation bar
+        const mobileNav = document.createElement('div');
+        mobileNav.className = 'mobile-nav-bar';
+        
+        // Add calendar toggle button
+        const calendarToggle = document.createElement('button');
+        calendarToggle.className = 'mobile-nav-btn';
+        calendarToggle.innerHTML = '<i class="fas fa-calendar"></i>';
+        calendarToggle.addEventListener('click', () => {
+            const leftPanel = document.querySelector('.left-panel');
+            if (leftPanel) {
+                leftPanel.classList.toggle('mobile-visible');
+            }
+        });
+        
+        // Add home/main content button
+        const homeBtn = document.createElement('button');
+        homeBtn.className = 'mobile-nav-btn active';
+        homeBtn.innerHTML = '<i class="fas fa-home"></i>';
+        homeBtn.addEventListener('click', () => {
+            const btns = document.querySelectorAll('.mobile-nav-btn');
+            btns.forEach(btn => btn.classList.remove('active'));
+            homeBtn.classList.add('active');
+            
+            // Hide left panel if visible
+            const leftPanel = document.querySelector('.left-panel');
+            if (leftPanel) leftPanel.classList.remove('mobile-visible');
+            
+            // Show main content
+            const rightPanel = document.querySelector('.right-panel');
+            if (rightPanel) rightPanel.classList.add('mobile-visible');
+        });
+        
+        mobileNav.appendChild(calendarToggle);
+        mobileNav.appendChild(homeBtn);
+        
+        // Add to DOM
+        document.body.appendChild(mobileNav);
+    }
+
+    setupDarkMode() {
+        // Add dark mode styles
+        document.body.classList.add('dark-mode');
+        document.querySelector('#theme-toggle-btn i').className = 'fas fa-sun';
     }
 }
 

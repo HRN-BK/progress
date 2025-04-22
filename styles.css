@@ -103,41 +103,124 @@ footer {
 
 /* Collapsible Sections */
 .collapsible-section {
-    transition: all var(--transition-speed);
+    position: relative;
+    transition: all 0.3s ease;
 }
 
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 10px;
     cursor: pointer;
-    padding-bottom: 10px;
+    border-bottom: 1px solid var(--background-dark);
 }
 
 .section-header h2 {
-    margin-bottom: 0;
+    margin: 0;
 }
 
 .toggle-section {
     background: none;
     border: none;
-    color: var(--text-light);
-    font-size: 1.1rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: transform var(--transition-speed);
 }
 
 .section-content {
+    padding: 15px;
     overflow: hidden;
-    transition: max-height var(--transition-speed);
-    max-height: 2000px; /* Arbitrary large value */
+    transition: max-height 0.5s ease, opacity 0.3s ease, transform 0.3s ease;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .collapsible-section.collapsed .section-content {
     max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    transform: translateY(-10px);
 }
 
 .collapsible-section.collapsed .toggle-section {
     transform: rotate(180deg);
+}
+
+/* Section appear/disappear animations */
+.right-panel > section.collapsible-section {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.right-panel > section.collapsible-section[style*="display: block"] {
+    opacity: 1;
+    transform: translateY(0);
+    animation: sectionFadeIn 0.4s ease forwards;
+}
+
+@keyframes sectionFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Section Icon Button Enhancements */
+.section-icon-btn {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: var(--border-radius);
+    background-color: var(--background-light);
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 0 5px;
+}
+
+.section-icon-btn:hover {
+    background-color: var(--primary-light);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+.section-icon-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.section-icon-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 20px;
+    height: 3px;
+    background-color: var(--primary-color);
+    transition: transform 0.3s ease;
+    border-radius: 3px;
+}
+
+.section-icon-btn.active::after {
+    transform: translateX(-50%) scaleX(1);
 }
 
 /* Buttons */
@@ -949,13 +1032,46 @@ footer {
     .app-layout {
         grid-template-columns: 1fr 1fr;
     }
+    
+    .timer-container {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .timer-box {
+        min-height: 250px;
+    }
 }
 
 @media (max-width: 768px) {
+    /* Bố cục chung */
     .app-layout {
         grid-template-columns: 1fr;
     }
     
+    /* Sửa lỗi với left-panel bị sticky */
+    .left-panel {
+        position: relative;
+        top: 0;
+        max-height: none;
+        overflow-y: visible;
+    }
+    
+    /* Điều chỉnh header */
+    .header-content {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .app-title h1 {
+        font-size: 1.5rem;
+    }
+    
+    .user-profile {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Điều chỉnh cho lịch */
     .calendar-day {
         padding: 2px;
     }
@@ -965,7 +1081,130 @@ footer {
     }
     
     .day-indicators {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2px;
+    }
+    
+    .day-indicator {
+        width: 4px;
+        height: 4px;
+    }
+    
+    /* Điều chỉnh các timer */
+    .timer-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .timer-box {
+        min-height: auto;
+        padding: 15px 10px;
+    }
+    
+    .analog-clock {
+        width: 160px;
+        height: 160px;
+    }
+    
+    /* Điều chỉnh các form nhập liệu */
+    .journal-input-header,
+    .task-time-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    /* Điều chỉnh section icons */
+    .section-icons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .section-icon-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    /* Ẩn tooltip trên màn hình nhỏ để tránh chồng chéo */
+    .section-icon-btn:hover::after,
+    .section-icon-btn:hover::before,
+    .gamification-icon-btn:hover::after,
+    .gamification-icon-btn:hover::before {
         display: none;
+    }
+}
+
+/* Thêm media query cho iPhone và màn hình rất nhỏ */
+@media (max-width: 480px) {
+    /* Điều chỉnh padding và margin */
+    section {
+        padding: 15px 10px;
+    }
+    
+    .app-container {
+        padding: 10px;
+    }
+    
+    /* Điều chỉnh font size */
+    body {
+        font-size: 14px;
+    }
+    
+    h1 {
+        font-size: 1.4rem;
+    }
+    
+    h2 {
+        font-size: 1.2rem;
+    }
+    
+    h3 {
+        font-size: 1.1rem;
+    }
+    
+    /* Điều chỉnh lịch */
+    .weekdays-header div {
+        font-size: 0.7rem;
+    }
+    
+    .calendar-controls {
+        gap: 5px;
+    }
+    
+    /* Điều chỉnh form */
+    textarea, input {
+        font-size: 14px;
+    }
+    
+    /* Điều chỉnh các nút */
+    .btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .icon-btn {
+        padding: 6px;
+    }
+    
+    /* Giảm chiều cao của các vùng */
+    #journal-content {
+        height: 100px;
+    }
+    
+    /* Điều chỉnh giao diện thời gian */
+    .time-picker {
+        flex-wrap: wrap;
+    }
+    
+    /* Đảm bảo các timer vừa màn hình */
+    .timer-box {
+        padding: 10px 8px;
+    }
+    
+    .analog-clock {
+        width: 140px;
+        height: 140px;
     }
 }
 
@@ -1002,18 +1241,25 @@ footer {
 }
 
 /* Section Icons Navigation */
-.section-icons {
+.section-icons,
+.section-icons-2 {
+    position: sticky;
+    top: 10px;
+    z-index: 50;
     display: flex;
     justify-content: center;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding: 15px;
     background-color: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-light);
-    position: sticky;
-    top: 20px;
-    z-index: 10;
+    padding: 10px;
+    border-radius: 40px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: top 0.3s ease, transform 0.3s ease;
+}
+
+.section-icons-2 {
+    top: 100px;
+    margin-top: -10px;
+    margin-bottom: 30px;
 }
 
 .section-icon-btn {
@@ -1027,6 +1273,8 @@ footer {
     font-size: 1.2rem;
     cursor: pointer;
     transition: all var(--transition-speed);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 0 5px;
 }
 
 .section-icon-btn:hover {
@@ -1039,26 +1287,28 @@ footer {
 .section-icon-btn.active {
     background-color: var(--primary-color);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.section-icon-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 20px;
+    height: 3px;
+    background-color: var(--primary-color);
+    transition: transform 0.3s ease;
+    border-radius: 3px;
+}
+
+.section-icon-btn.active::after {
+    transform: translateX(-50%) scaleX(1);
 }
 
 /* Tooltip */
-.section-icon-btn:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--text-dark);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    z-index: 10;
-    opacity: 0;
-    animation: fadeIn 0.3s forwards;
-}
-
 .section-icon-btn:hover::before {
     content: '';
     position: absolute;
@@ -1068,6 +1318,23 @@ footer {
     border-width: 5px;
     border-style: solid;
     border-color: transparent transparent var(--text-dark) transparent;
+    z-index: 11;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+.section-icon-btn:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--text-dark);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
     z-index: 10;
     opacity: 0;
     animation: fadeIn 0.3s forwards;
@@ -3041,4 +3308,517 @@ body.dark-theme .clock-marking {
 .dark-theme .cycle-timer-display {
     color: #e0e0e0;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Section Icons Navigation - LEVEL 2 (Gamification & Timer) */
+.section-icons-2 {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    position: sticky;
+    top: 20px;
+    z-index: 11; /* Cao hơn section-icons */
+}
+
+/* Thêm thứ tự z-index cho section-icons hiện tại để tránh chồng lên section-icons-2 */
+.section-icons {
+    z-index: 10;
+    top: 80px; /* Cách xa section-icons-2 */
+}
+
+.section-icons-2 .section-icon-btn {
+    background-color: var(--background-dark);
+    color: var(--primary-dark);
+}
+
+.section-icons-2 .section-icon-btn:hover {
+    background-color: var(--secondary-light);
+    color: white;
+}
+
+.section-icons-2 .section-icon-btn.active {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+/* Tăng cường tương phản cho dark mode */
+body.dark-theme {
+    background: linear-gradient(135deg, #121520 0%, #1c1c28 100%);
+    color: #f0f0f0;
+}
+
+body.dark-theme header,
+body.dark-theme section,
+body.dark-theme .section-icons,
+body.dark-theme .section-icons-2 {
+    background-color: #1a1f2e;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+body.dark-theme h1, 
+body.dark-theme h2, 
+body.dark-theme h3 {
+    color: #f0f0f0;
+}
+
+body.dark-theme .section-icons-2 .section-icon-btn {
+    background-color: #2c3242;
+    color: var(--secondary-light);
+}
+
+body.dark-theme .section-icons-2 .section-icon-btn:hover {
+    background-color: var(--secondary-dark);
+    color: white;
+}
+
+body.dark-theme .section-icons-2 .section-icon-btn.active {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+body.dark-theme .section-icon-btn {
+    background-color: #2c3242;
+    color: var(--primary-light);
+}
+
+body.dark-theme .section-icon-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+body.dark-theme .section-icon-btn.active {
+    background-color: var(--primary-color);
+}
+
+body.dark-theme .calendar-day {
+    background-color: #2c3242;
+    color: #f0f0f0;
+}
+
+body.dark-theme .calendar-day.current-day {
+    background-color: var(--primary-dark);
+}
+
+body.dark-theme .calendar-day.past-day {
+    background-color: #252a38;
+    color: #b0b0b0;
+}
+
+body.dark-theme .calendar-day.future-day {
+    background-color: #253342;
+}
+
+body.dark-theme .goal-item,
+body.dark-theme .journal-history-item,
+body.dark-theme .lesson-item,
+body.dark-theme .sr-item,
+body.dark-theme .goal-item-summary,
+body.dark-theme .lesson-item-summary,
+body.dark-theme .task-item {
+    background-color: #2c3242;
+}
+
+body.dark-theme .goal-item:hover,
+body.dark-theme .journal-history-item:hover,
+body.dark-theme .lesson-item:hover,
+body.dark-theme .sr-item:hover,
+body.dark-theme .goal-item-summary:hover,
+body.dark-theme .lesson-item-summary:hover,
+body.dark-theme .task-item:hover {
+    background-color: #323a4f;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme textarea,
+body.dark-theme input[type="text"],
+body.dark-theme input[type="url"],
+body.dark-theme input[type="date"],
+body.dark-theme select {
+    background-color: #212734;
+    border: 1px solid #2c3242;
+    color: #f0f0f0;
+}
+
+/* Điều chỉnh timer styles trong dark mode */
+body.dark-theme .timer-box {
+    background: linear-gradient(145deg, #1a1f2e, #252d3f);
+    box-shadow: 
+        5px 5px 10px rgba(0, 0, 0, 0.4),
+        -5px -5px 10px rgba(35, 40, 50, 0.2);
+}
+
+body.dark-theme .timer-box:hover {
+    box-shadow: 
+        7px 7px 14px rgba(0, 0, 0, 0.5),
+        -7px -7px 14px rgba(35, 40, 50, 0.3);
+}
+
+body.dark-theme .analog-clock {
+    background: linear-gradient(145deg, #252d3f, #1a1f2e);
+    box-shadow: 
+        5px 5px 10px rgba(0, 0, 0, 0.4),
+        -5px -5px 10px rgba(35, 40, 50, 0.2),
+        inset 1px 1px 2px rgba(35, 40, 50, 0.3);
+}
+
+body.dark-theme .clock-face {
+    background: rgba(30, 35, 45, 0.8);
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.4),
+                inset -2px -2px 5px rgba(40, 45, 55, 0.2);
+}
+
+body.dark-theme .hour-hand {
+    background-color: #d0d0d0;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .minute-hand {
+    background-color: #b0b0b0;
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme .second-hand {
+    background-color: var(--secondary-color);
+    box-shadow: 0 0 5px var(--secondary-color);
+}
+
+body.dark-theme .clock-marking {
+    background-color: #d0d0d0;
+}
+
+body.dark-theme .hour-dot span {
+    background-color: #b0b0b0;
+}
+
+body.dark-theme .digital-time, 
+body.dark-theme .countdown-display, 
+body.dark-theme .progress-timer-display, 
+body.dark-theme .cycle-timer-display {
+    color: #f0f0f0;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+    /* Điều chỉnh section-icons-2 cho màn hình nhỏ */
+    .section-icons-2 {
+        flex-wrap: wrap;
+    }
+    
+    .section-icons {
+        top: auto; /* Không cố định nữa khi màn hình nhỏ để tránh chồng lấp */
+    }
+    
+    /* Ẩn tooltip trên section-icons-2 cũng */
+    .section-icons-2 .section-icon-btn:hover::after,
+    .section-icons-2 .section-icon-btn:hover::before {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Thêm điều chỉnh cho màn hình rất nhỏ */
+    .section-icons-2 .section-icon-btn,
+    .section-icons .section-icon-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile Layout Adjustments */
+@media (max-width: 768px) {
+    .app-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        grid-template-areas:
+            "header"
+            "left-panel"
+            "right-panel";
+        height: auto;
+        overflow-x: hidden;
+    }
+
+    .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .left-panel {
+        position: relative; /* Change from sticky to relative for mobile */
+        top: auto;
+        height: auto;
+        max-height: none;
+        width: 100%;
+        padding: 0;
+        overflow-y: visible;
+    }
+
+    .calendar-section {
+        margin-bottom: 15px;
+        position: relative; /* Ensure calendar is not fixed */
+        top: auto;
+        height: auto;
+    }
+
+    .right-panel {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    .sections-container {
+        flex-direction: column;
+    }
+
+    .section {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    /* Make section toggle work better on mobile */
+    .section-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 10px;
+        cursor: pointer;
+    }
+    
+    /* Collapsible sections for mobile */
+    .collapsible-section {
+        max-height: none;
+        transition: max-height 0.3s ease-out;
+        position: relative; /* Ensure sections are not fixed */
+    }
+    
+    /* Adjust gamification section for mobile */
+    #gamification-section,
+    .gamification-section {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    /* Enlarge touch targets for mobile */
+    .icon-btn {
+        padding: 12px;
+        margin: 5px;
+    }
+    
+    /* Calendar adjustment for mobile */
+    .calendar {
+        width: 100%;
+        overflow-x: auto;
+        position: relative; /* Ensure calendar is not fixed */
+    }
+    
+    .calendar-grid {
+        grid-template-columns: repeat(7, minmax(40px, 1fr));
+    }
+    
+    .calendar-day {
+        height: 40px;
+        font-size: 14px;
+    }
+    
+    /* Remove any fixed positioning from section icons */
+    .section-icons,
+    .section-icons-2 {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        display: flex;
+        justify-content: center;
+        margin: 10px 0;
+        z-index: 90;
+    }
+}
+
+/* iPhone specific adjustments */
+@media (max-width: 480px) {
+    body {
+        -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+        overflow-x: hidden; /* Prevent horizontal scrolling */
+    }
+    
+    .app-container {
+        padding: 5px;
+    }
+    
+    .header {
+        padding: 10px 5px;
+    }
+    
+    /* Further reduce paddings and margins */
+    .section, .collapsible-section {
+        padding: 8px;
+        margin-bottom: 10px;
+        position: relative; /* Ensure no fixed positioning */
+    }
+    
+    /* Make inputs and buttons easier to tap */
+    input, select, button, textarea {
+        font-size: 16px; /* iOS minimum font size to prevent zoom on focus */
+        padding: 8px;
+    }
+    
+    /* Task and journal entries more compact */
+    .journal-entry, .task-item {
+        padding: 8px;
+        margin-bottom: 8px;
+    }
+    
+    /* Smaller calendar for very small screens */
+    .calendar-grid {
+        grid-template-columns: repeat(7, minmax(35px, 1fr));
+    }
+    
+    .calendar-day {
+        height: 35px;
+        font-size: 13px;
+    }
+    
+    /* Additional iPhone fixes */
+    .left-panel, .right-panel {
+        overflow: visible;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Ensure no fixed positioning for any section */
+    .section, 
+    .collapsible-section,
+    .calendar-section,
+    #gamification-section,
+    .gamification-section {
+        position: relative !important; /* Use !important to override any other styles */
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+    }
+}
+
+/* iOS specific fixes */
+.ios-device {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+}
+
+.ios-device .app-container {
+    height: calc(var(--vh, 1vh) * 100);
+    overflow-y: auto;
+    position: relative;
+}
+
+.ios-device .left-panel,
+.ios-device .right-panel {
+    position: relative;
+    top: auto;
+    height: auto;
+    overflow-y: visible;
+}
+
+.ios-device .calendar-section,
+.ios-device .gamification-section {
+    position: relative;
+    top: auto;
+    max-height: none;
+    overflow-y: visible;
+}
+
+.ios-device .section {
+    position: relative;
+    max-height: none;
+    overflow-y: visible;
+}
+
+/* Additional media queries for iPhone */
+@media screen and (max-width: 480px) {
+    .ios-device .app-container {
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "content";
+    }
+    
+    .ios-device .left-panel,
+    .ios-device .right-panel {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .ios-device .calendar-section {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    .ios-device .calendar-container {
+        width: 100%;
+    }
+    
+    .ios-device .icon-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: var(--bg-color);
+        border-top: 1px solid var(--border-color);
+        padding: 8px 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-around;
+    }
+    
+    .ios-device .section-content {
+        padding-bottom: 60px; /* Space for fixed navigation */
+    }
+    
+    .ios-device #scrollToTop {
+        bottom: 70px;
+    }
+}
+
+/* Mobile Specific Fixes */
+.ios-device {
+    /* iOS specific fixes */
+    -webkit-overflow-scrolling: touch;
+}
+
+.mobile-device .left-panel,
+.mobile-device .right-panel {
+    transition: transform 0.3s ease, max-height 0.3s ease;
+}
+
+/* Mobile navigation bar */
+.mobile-nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background-color: var(--primary-bg-color);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 10px;
+}
+
+@media (max-width: 768px) {
+    /* ... existing code ... */
+    
+    .mobile-device .mobile-nav-bar {
+        display: flex;
+    }
+    
+    /* ... existing code ... */
 }
